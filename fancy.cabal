@@ -1,0 +1,31 @@
+cabal-version: 3.0
+name: fancy
+version: 0.1.0.0
+author: Ignat Insarov
+maintainer: kindaro@gmail.com
+tested-with: GHC == 8.10.7, GHC == 9.0.1, GHC == 9.2.1
+
+common commons
+  build-depends:
+    , base
+    , base-unicode-symbols
+    , containers
+  default-language: Haskell2010
+  default-extensions:
+    ApplicativeDo
+    BlockArguments
+    FlexibleContexts
+    FlexibleInstances
+    ImportQualifiedPost
+    InstanceSigs
+    OverloadedStrings
+    StandaloneDeriving
+    TypeApplications
+    TypeOperators
+    UnicodeSyntax
+  ghc-options: -Wall -Wextra -Werror
+
+library
+  import: commons
+  hs-source-dirs: library
+  exposed-modules: Prelude.Fancy
