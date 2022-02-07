@@ -1,0 +1,4 @@
+cradle:
+  cabal:
+    - path: "library"
+      component: "lib:fancy"
