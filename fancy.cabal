@@ -23,7 +23,14 @@ common commons
     TypeApplications
     TypeOperators
     UnicodeSyntax
-  ghc-options: -Wall -Wextra -Werror
+    KindSignatures
+    DataKinds
+    TypeFamilies
+    TypeFamilyDependencies
+    MultiParamTypeClasses
+    UndecidableInstances
+    FunctionalDependencies
+  ghc-options: -Wall -Wextra -Werror -Wno-unticked-promoted-constructors
 
 library
   import: commons
