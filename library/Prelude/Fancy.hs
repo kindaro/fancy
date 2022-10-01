@@ -21,18 +21,18 @@ infixr 6 +
 function ▿ gunction = either function gunction
 infixr 6 ▿
 
-class Commutative bifunctor where
-  commute ∷ bifunctor α (bifunctor β γ) → bifunctor β (bifunctor α γ)
+class Associative constructor where reassociate ∷ constructor α (constructor β γ) → constructor (constructor α β) γ
+instance Associative (, ) where reassociate (x, (y, z)) = ((x, y), z)
+instance Associative Either where
+  reassociate (Left left) = (Left ∘ Left) left
+  reassociate (Right (Left middle)) = (Left ∘ Right) middle
+  reassociate (Right (Right right)) = Right right
 
-instance Commutative (, ) where
-  commute ∷ α × β × γ → β × α × γ
-  commute (α, (β, γ)) = (β, (α, γ))
-
+class Commutative constructor where commute ∷ constructor α β → constructor β α
+instance Commutative (, ) where commute (left, right) = (right, left)
 instance Commutative Either where
-  commute ∷ α + β + γ → β + α + γ
-  commute (Left value) = (Right ∘ Left) value
-  commute (Right (Left value)) = Left value
-  commute (Right (Right value)) = Right (Right value)
+  commute (Left left) = Right left
+  commute (Right right) = Left right
 
 distribute ∷ Bool × α → α + α
 distribute (False, value) = Left value
@@ -49,8 +49,8 @@ type family Result arrow where
   Result result = result
 
 type family Inductive arrow = (boolean ∷ Bool) where
-  Inductive (argument → result) = False
-  Inductive result = True
+  Inductive (argument → result) = True
+  Inductive result = False
 
 class Inductive arrow ~ induction ⇒ TupleArrowAdjunction (induction ∷ Bool) arrow arguments result
   | arguments result → arrow, induction arrow → arguments, induction arrow → result
@@ -58,7 +58,7 @@ class Inductive arrow ~ induction ⇒ TupleArrowAdjunction (induction ∷ Bool) 
     rightwards ∷ (arguments → result) → arrow
     leftwards ∷ arrow → arguments → result
 
-instance Inductive result ~ True ⇒ TupleArrowAdjunction True result ( ) result
+instance Inductive result ~ False ⇒ TupleArrowAdjunction False result ( ) result
   where
     rightwards = ($ ( ))
     leftwards = const
@@ -66,7 +66,7 @@ instance Inductive result ~ True ⇒ TupleArrowAdjunction True result ( ) result
 instance {-# overlapping #-}
   ( TupleArrowAdjunction induction arrow arguments result
   , arguments ~ Arguments arrow, result ~ Result arrow )
-  ⇒ TupleArrowAdjunction False (argument → arrow) (argument, arguments) result
+  ⇒ TupleArrowAdjunction True (argument → arrow) (argument, arguments) result
   where
     rightwards function argument = rightwards (curry function argument)
     leftwards gunction (argument, arguments) = leftwards (gunction argument) arguments
@@ -101,5 +101,17 @@ instance (Fork arrows, source ~ Same (Source arrows) source, Source arrows ~ sou
 fork' :: Fork (a, (b, ( ))) => a -> b -> Source (a, (b, ( ))) -> Targets (a, (b, ( )))
 fork' x y = fork (x, (y, ( )))
 
--- fork_ :: _ => _
--- fork_ = rightwards fork
+type family Append there this where
+  Append ( ) this = (this, ( ))
+  Append (that, there) this = (that, Append there this)
+
+type family Curried arguments result where
+  Curried ( ) result = result
+  Curried (argument, arguments) result = argument → Curried arguments result
+
+fork_ :: (arrow ~ Curried (Source arrows, arrows) (Targets arrows), Fork arrows, TupleArrowAdjunction (Inductive arrow) arrow (Source arrows, arrows) (Targets arrows)) => arrow
+fork_ = rightwards (\ (argument, arrows) → fork arrows argument)
+
+class TupleToList α β where tupleToList ∷ α → [β]
+instance TupleToList ( ) β where tupleToList ( ) = [ ]
+instance TupleToList γ α ⇒ TupleToList (α, γ) α where tupleToList (x, xs) = x: tupleToList xs
