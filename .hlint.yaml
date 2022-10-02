@@ -1,0 +1,3 @@
+- ignore: {name: "Use <$>"}
+- ignore: {name: "Redundant lambda"}
+- warn: {name: Redundant bracket due to operator fixities}
