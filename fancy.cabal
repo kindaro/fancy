@@ -33,6 +33,7 @@ common commons
     StandaloneKindSignatures
     PolyKinds
     ScopedTypeVariables
+    PatternSynonyms
   ghc-options: -Wall -Wextra -Werror -Wno-unticked-promoted-constructors -Wno-star-is-type
 
 library

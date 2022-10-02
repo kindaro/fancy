@@ -4,7 +4,7 @@ module Prelude.Fancy where
 
 import Prelude.Unicode
 import Data.Map.Lazy (Map)
-import Data.Coerce
+import Data.Kind
 
 bind ∷ Monad monad ⇒ (input → monad output) → monad input → monad output
 bind = (=<<)
@@ -23,15 +23,20 @@ infixr 6 +
 function ▿ gunction = either function gunction
 infixr 6 ▿
 
+pattern (:×) ∷ left → right → left × right
+pattern left :× right = (left, right)
+infixr 7 :×
+{-# complete (:×) #-}
+
 class Associative constructor where reassociate ∷ constructor α (constructor β γ) → constructor (constructor α β) γ
-instance Associative (, ) where reassociate (x, (y, z)) = ((x, y), z)
+instance Associative (, ) where reassociate (x :× y :× z) = (x :× y) :× z
 instance Associative Either where
   reassociate (Left left) = (Left ∘ Left) left
   reassociate (Right (Left middle)) = (Left ∘ Right) middle
   reassociate (Right (Right right)) = Right right
 
 class Commutative constructor where commute ∷ constructor α β → constructor β α
-instance Commutative (, ) where commute (left, right) = (right, left)
+instance Commutative (, ) where commute (left :× right) = right :× left
 instance Commutative Either where
   commute (Left left) = Right left
   commute (Right right) = Left right
@@ -42,151 +47,96 @@ distribute (True, value) = Right value
 
 type key ⇸ value = Map key value
 
-type family Arguments arrow where
-  Arguments (argument → result) = (argument, Arguments result)
-  Arguments result = ( )
+type family Tuple (stuff ∷ [★]) = tuple | tuple → stuff where
+  Tuple '[ ] = ( )
+  Tuple (thingie: stuff) = thingie × Tuple stuff
 
-type family Result arrow where
-  Result (argument → result) = Result result
-  Result result = result
+type family Arrow (inputs ∷ [★]) output where
+  Arrow '[ ] output = output
+  Arrow (input: inputs) output = input → Arrow inputs output
 
-type family Inductive arrow = (boolean ∷ Bool) where
-  Inductive (argument → result) = True
-  Inductive result = False
+type family Inputs arrow output where
+  Inputs output output = '[]
+  Inputs (input → arrow) output = input : Inputs arrow output
+  Inputs (functor _) (functor _) = '[]
+  Inputs (functor _ _) (functor _ _) = '[]
 
-class Inductive arrow ~ induction ⇒ TupleArrowAdjunction (induction ∷ Bool) arrow arguments result
-  | arguments result → arrow, induction arrow → arguments, induction arrow → result
-  where
-    rightwards ∷ (arguments → result) → arrow
-    leftwards ∷ arrow → arguments → result
+type family Output arrow (inputs ∷ [★]) where
+  Output (input → arrow) (input : inputs) = Output arrow inputs
+  Output output '[] = output
 
-instance Inductive result ~ False ⇒ TupleArrowAdjunction False result ( ) result
-  where
-    rightwards = ($ ( ))
-    leftwards = const
-
-instance {-# overlapping #-}
-  ( TupleArrowAdjunction induction arrow arguments result
-  , arguments ~ Arguments arrow, result ~ Result arrow )
-  ⇒ TupleArrowAdjunction True (argument → arrow) (argument, arguments) result
-  where
-    rightwards function argument = rightwards (curry function argument)
-    leftwards gunction (argument, arguments) = leftwards (gunction argument) arguments
-
-newtype Arrow arrow = Arrow arrow
-
-type family Loose arrows where
-  Loose (Arrow arrow) = arrow
-  Loose (function arrows moreArrows) = function (Loose arrows) (Loose moreArrows)
-  Loose (function arrows) = Loose arrows
-
-type family Source arrows where
-  Source (source → target, ( )) = source
-  Source (source → target, arrows) = Same (Source arrows) source
-
-type family Same someType someOtherType where
-  Same someType someType = someType
-
-type family Targets arrows = targets where
-  Targets ( ) = ( )
-  Targets (source → target, arrows) = (target, Targets arrows)
-
-class Fork arrows source targets | arrows → source targets, source targets → arrows where
-  fork :: arrows -> source -> targets
-
-instance {-# overlapping #-} Fork (source → target, ( )) source (target, ( )) where
-  fork (function, ( )) input = (function input, ( ))
-
-instance (Fork arrows source targets, source ~ Same (Source arrows) source, Source arrows ~ source, Source (source → target, arrows) ~ source, targets ~ Targets arrows) => Fork (source -> target, arrows) source (target, targets) where
-  fork (arrow, arrows) source = (coerce arrow source, fork arrows source)
-
-fork' :: Fork (a, (b, ( ))) (Source (a, (b, ( )))) (Targets (a, (b, ( )))) => a -> b -> Source (a, (b, ( ))) -> Targets (a, (b, ( )))
-fork' x y = fork (x, (y, ( )))
-
-type family AppendFamily there this where
-  AppendFamily ( ) this = (this, ( ))
-  AppendFamily (that, there) this = (that, AppendFamily there this)
-
-class Append there this where append ∷ there → this → AppendFamily there this
-instance Append ( ) this where append ( ) this = (this, ( ))
-instance Append there this ⇒ Append (that, there) this where append (that, there) this = (that, append there this)
-
-type family Curried arguments result where
-  Curried ( ) result = result
-  Curried (argument, arguments) result = argument → Curried arguments result
-
-type Reverse ∷ ★ → ★
-type Reverse tuple = ReverseFamily tuple ( )
-type family ReverseFamily (straight ∷ ★) (backwards ∷ ★) ∷ ★ where
-  ReverseFamily ( ) backwards = backwards
-  ReverseFamily (thingie, straight) backwards = ReverseFamily straight (thingie, backwards)
-class ReverseTailRecursive straight backwards result | straight backwards → result, result straight → backwards where reverseTailRecursive ∷ straight → backwards → result
-instance ReverseTailRecursive ( ) backwards backwards where reverseTailRecursive ( ) backwards = backwards
-instance (ReverseTailRecursive straight (thingie, backwards) result)
-  ⇒ ReverseTailRecursive (thingie, straight) backwards result
-  where reverseTailRecursive (thingie, straight) backwards = reverseTailRecursive straight (thingie, backwards)
-reverseTuple ∷ ReverseTailRecursive tuple ( ) (Reverse tuple) ⇒ tuple → Reverse tuple
-reverseTuple tuple = reverseTailRecursive tuple ( )
-
-type family Leftie binaryOperation where Leftie (constructor left right) = left
-type family Rightie binaryOperation where Rightie (constructor left right) = right
-
-type family Fan source targets where
-  Fan source ( ) = ( )
-  Fan source (target, targets) = (source → target, Fan source targets)
-
-type family ExtendRange arrow target = result | result → arrow target where
-  ExtendRange (argument → arrow) target = argument → ExtendRange arrow target
-  ExtendRange targets target = (target, targets)
-
-type family InductiveFork_ arrow where
-  InductiveFork_ ((source → target) → arrow) = True
-  InductiveFork_ (source → ( )) = False
-
-class Fork_ (inductive ∷ Bool) arrow source targets | source targets → arrow, inductive arrow → source, inductive arrow → targets
-instance {-# overlapping #-} Fork_ False (source → ( )) source ( )
-instance (Fork_ (InductiveFork_ arrow) arrow source targets, widerArrow ~ ExtendRange arrow target)
-  ⇒ Fork_ True ((source → target) → widerArrow) source (target, targets)
-
-fork_ ∷ ∀ arrow arguments arrows source targets.
-  ( arguments ~ Arguments arrow
-  , arrows ~ Reverse (Rightie (Reverse arguments))
-  , targets ~ Targets arrows
-  , Result arrow ~ targets
-  , source ~ Source arrows
-  , source ~ Leftie (Reverse arguments)
-  , arrow ~ Curried arguments targets
-  , arrows ~ Fan source targets
-  , arguments ~ AppendFamily arrows source
-  , Fork_ True arrow source targets
-  , Reverse arguments
-      ~ ( Leftie (Reverse arguments)
-        , Rightie (Reverse arguments)
-        )
-  , TupleArrowAdjunction True arrow arguments targets
-  , ReverseTailRecursive arguments () (Reverse arguments)
-  , ReverseTailRecursive (Rightie (Reverse arguments)) () (Reverse (Rightie (Reverse arguments)))
-  , Fork arrows source (Targets arrows)
+type Currify ∷ [★] → ★ → ★ → Constraint
+class
+  ( inputs ~ Inputs arrow output
+  , output ~ Output arrow inputs
+  , arrow ~ Arrow inputs output
   ) ⇒
-  arrow
-fork_ = rightwards function
+  Currify inputs output arrow
   where
-    function ∷ arguments → Targets (Reverse (Rightie (Reverse arguments)))
-    function arrowsAndArgument =
-      let (argument, reverseArrows) = reverseTuple arrowsAndArgument
-      in fork @arrows @(Source arrows) @(Targets arrows) (reverseTuple reverseArrows) argument
+  currify ∷ (Tuple inputs → output) → arrow
+  uncurrify ∷ arrow → Tuple inputs → output
 
-forkTypeChecks₁ ∷ (Char, ( ))
-forkTypeChecks₁ = fork_ id 'c'
+instance Currify '[] output output where
+  currify spike = spike ()
+  uncurrify output = \() → output
 
-forkTypeChecks₂ ∷ (Char, (Char, ( )))
-forkTypeChecks₂ = fork_ id id 'c'
+instance
+  ( Currify inputs output arrow
+  , input : inputs ~ Inputs (input → arrow) output
+  , output ~ Output (input → arrow) (input : inputs)
+  ) ⇒
+  Currify (input : inputs) output (input → arrow)
+  where
+  currify function = \input → currify \inputs → function (input :× inputs)
+  uncurrify arrow = \(input :× inputs) → uncurrify (arrow input) inputs
 
-forkTypeChecksNoSignature₁ ∷ (_, _)
-forkTypeChecksNoSignature₁ = fork_ (id ∷ Char → Char) 'c'
+-- * checks for 'currify'
 
-forkTypeChecksNoSignature₂ ∷ (_, _)
-forkTypeChecksNoSignature₂ = fork_ id id 'c'
+-- | Everything can be inferred if arity is zero.
+currifyTypeChecks₁ ∷ _
+currifyTypeChecks₁ = currify @'[ ]
+
+-- | Everything can be inferred from the length of the tuple and the output.
+currifyTypeChecks₂ ∷ _
+currifyTypeChecks₂ = currify @_ @Bool (undefined ∷ _ × _ × _ × ( ) → _)
+
+-- | Everything can be inferred from arity and output.
+currifyTypeChecks₃ ∷ _ → _ → _ × _
+currifyTypeChecks₃ = currify @_ @(Bool × Char) undefined
+
+-- | Everything can be inferred from arity and inputs.
+currifyTypeChecks₄ ∷ _ → _ → _ × _
+currifyTypeChecks₄ = currify @'[Bool, Char] undefined
+
+-- * checks for 'uncurrify'
+
+-- | Everything can be inferred if arity is zero.
+uncurrifyTypeChecks₁ ∷ _
+uncurrifyTypeChecks₁ = uncurrify @'[ ]
+
+-- | Everything can be inferred from the length of the tuple and the output.
+uncurrifyTypeChecks₂ ∷ _ × _ × _ × ( ) → _
+uncurrifyTypeChecks₂ = uncurrify @_ @Bool undefined
+
+-- | Everything can be inferred from arity and output.
+uncurrifyTypeChecks₃ ∷ _
+uncurrifyTypeChecks₃ = uncurrify @_ @(Bool × Char) (undefined ∷ _ → _ → _ → _ × _)
+
+-- | Everything can be inferred from arity and inputs.
+uncurrifyTypeChecks₄ ∷ _
+uncurrifyTypeChecks₄ = uncurrify @'[Bool, Char] (undefined ∷ _ → _ → _ → _ × _)
+
+-- forkTypeChecks₁ ∷ (Char, ( ))
+-- forkTypeChecks₁ = fork_ id 'c'
+
+-- forkTypeChecks₂ ∷ (Char, (Char, ( )))
+-- forkTypeChecks₂ = fork_ id id 'c'
+
+-- forkTypeChecksNoSignature₁ ∷ _
+-- forkTypeChecksNoSignature₁ = fork_ (id ∷ Char → Char) 'c'
+
+-- forkTypeChecksNoSignature₂ ∷ _
+-- forkTypeChecksNoSignature₂ = fork_ id id 'c'
 
 class TupleToList α β where tupleToList ∷ α → [β]
 instance TupleToList ( ) β where tupleToList ( ) = [ ]
