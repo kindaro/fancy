@@ -30,7 +30,10 @@ common commons
     MultiParamTypeClasses
     UndecidableInstances
     FunctionalDependencies
-  ghc-options: -Wall -Wextra -Werror -Wno-unticked-promoted-constructors
+    StandaloneKindSignatures
+    PolyKinds
+    ScopedTypeVariables
+  ghc-options: -Wall -Wextra -Werror -Wno-unticked-promoted-constructors -Wno-star-is-type
 
 library
   import: commons

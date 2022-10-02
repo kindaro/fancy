@@ -1,3 +1,5 @@
+{-# LANGUAGE PartialTypeSignatures #-}
+{-# OPTIONS_GHC -Wno-partial-type-signatures #-}
 module Prelude.Fancy where
 
 import Prelude.Unicode
@@ -78,39 +80,113 @@ type family Loose arrows where
   Loose (function arrows moreArrows) = function (Loose arrows) (Loose moreArrows)
   Loose (function arrows) = Loose arrows
 
-type family Source arrows = source where
-  Source (Arrow (source -> target)) = source
-  Source (Arrow (source -> target), arrows) = Same (Source arrows) source
+type family Source arrows where
+  Source (source → target, ( )) = source
+  Source (source → target, arrows) = Same (Source arrows) source
 
 type family Same someType someOtherType where
   Same someType someType = someType
 
 type family Targets arrows = targets where
   Targets ( ) = ( )
-  Targets (Arrow (source -> target), arrows) = (target, Targets arrows)
+  Targets (source → target, arrows) = (target, Targets arrows)
 
-class Fork arrows where
-  fork :: arrows -> Source arrows -> Targets arrows
+class Fork arrows source targets | arrows → source targets, source targets → arrows where
+  fork :: arrows -> source -> targets
 
-instance Fork ( ) where
-  fork ( ) = const ( )
+instance {-# overlapping #-} Fork (source → target, ( )) source (target, ( )) where
+  fork (function, ( )) input = (function input, ( ))
 
-instance (Fork arrows, source ~ Same (Source arrows) source, Source arrows ~ source) => Fork (Arrow (source -> target), arrows) where
+instance (Fork arrows source targets, source ~ Same (Source arrows) source, Source arrows ~ source, Source (source → target, arrows) ~ source, targets ~ Targets arrows) => Fork (source -> target, arrows) source (target, targets) where
   fork (arrow, arrows) source = (coerce arrow source, fork arrows source)
 
-fork' :: Fork (a, (b, ( ))) => a -> b -> Source (a, (b, ( ))) -> Targets (a, (b, ( )))
+fork' :: Fork (a, (b, ( ))) (Source (a, (b, ( )))) (Targets (a, (b, ( )))) => a -> b -> Source (a, (b, ( ))) -> Targets (a, (b, ( )))
 fork' x y = fork (x, (y, ( )))
 
-type family Append there this where
-  Append ( ) this = (this, ( ))
-  Append (that, there) this = (that, Append there this)
+type family AppendFamily there this where
+  AppendFamily ( ) this = (this, ( ))
+  AppendFamily (that, there) this = (that, AppendFamily there this)
+
+class Append there this where append ∷ there → this → AppendFamily there this
+instance Append ( ) this where append ( ) this = (this, ( ))
+instance Append there this ⇒ Append (that, there) this where append (that, there) this = (that, append there this)
 
 type family Curried arguments result where
   Curried ( ) result = result
   Curried (argument, arguments) result = argument → Curried arguments result
 
-fork_ :: (arrow ~ Curried (Source arrows, arrows) (Targets arrows), Fork arrows, TupleArrowAdjunction (Inductive arrow) arrow (Source arrows, arrows) (Targets arrows)) => arrow
-fork_ = rightwards (\ (argument, arrows) → fork arrows argument)
+type Reverse ∷ ★ → ★
+type Reverse tuple = ReverseFamily tuple ( )
+type family ReverseFamily (straight ∷ ★) (backwards ∷ ★) ∷ ★ where
+  ReverseFamily ( ) backwards = backwards
+  ReverseFamily (thingie, straight) backwards = ReverseFamily straight (thingie, backwards)
+class ReverseTailRecursive straight backwards result | straight backwards → result, result straight → backwards where reverseTailRecursive ∷ straight → backwards → result
+instance ReverseTailRecursive ( ) backwards backwards where reverseTailRecursive ( ) backwards = backwards
+instance (ReverseTailRecursive straight (thingie, backwards) result)
+  ⇒ ReverseTailRecursive (thingie, straight) backwards result
+  where reverseTailRecursive (thingie, straight) backwards = reverseTailRecursive straight (thingie, backwards)
+reverseTuple ∷ ReverseTailRecursive tuple ( ) (Reverse tuple) ⇒ tuple → Reverse tuple
+reverseTuple tuple = reverseTailRecursive tuple ( )
+
+type family Leftie binaryOperation where Leftie (constructor left right) = left
+type family Rightie binaryOperation where Rightie (constructor left right) = right
+
+type family Fan source targets where
+  Fan source ( ) = ( )
+  Fan source (target, targets) = (source → target, Fan source targets)
+
+type family ExtendRange arrow target = result | result → arrow target where
+  ExtendRange (argument → arrow) target = argument → ExtendRange arrow target
+  ExtendRange targets target = (target, targets)
+
+type family InductiveFork_ arrow where
+  InductiveFork_ ((source → target) → arrow) = True
+  InductiveFork_ (source → ( )) = False
+
+class Fork_ (inductive ∷ Bool) arrow source targets | source targets → arrow, inductive arrow → source, inductive arrow → targets
+instance {-# overlapping #-} Fork_ False (source → ( )) source ( )
+instance (Fork_ (InductiveFork_ arrow) arrow source targets, widerArrow ~ ExtendRange arrow target)
+  ⇒ Fork_ True ((source → target) → widerArrow) source (target, targets)
+
+fork_ ∷ ∀ arrow arguments arrows source targets.
+  ( arguments ~ Arguments arrow
+  , arrows ~ Reverse (Rightie (Reverse arguments))
+  , targets ~ Targets arrows
+  , Result arrow ~ targets
+  , source ~ Source arrows
+  , source ~ Leftie (Reverse arguments)
+  , arrow ~ Curried arguments targets
+  , arrows ~ Fan source targets
+  , arguments ~ AppendFamily arrows source
+  , Fork_ True arrow source targets
+  , Reverse arguments
+      ~ ( Leftie (Reverse arguments)
+        , Rightie (Reverse arguments)
+        )
+  , TupleArrowAdjunction True arrow arguments targets
+  , ReverseTailRecursive arguments () (Reverse arguments)
+  , ReverseTailRecursive (Rightie (Reverse arguments)) () (Reverse (Rightie (Reverse arguments)))
+  , Fork arrows source (Targets arrows)
+  ) ⇒
+  arrow
+fork_ = rightwards function
+  where
+    function ∷ arguments → Targets (Reverse (Rightie (Reverse arguments)))
+    function arrowsAndArgument =
+      let (argument, reverseArrows) = reverseTuple arrowsAndArgument
+      in fork @arrows @(Source arrows) @(Targets arrows) (reverseTuple reverseArrows) argument
+
+forkTypeChecks₁ ∷ (Char, ( ))
+forkTypeChecks₁ = fork_ id 'c'
+
+forkTypeChecks₂ ∷ (Char, (Char, ( )))
+forkTypeChecks₂ = fork_ id id 'c'
+
+forkTypeChecksNoSignature₁ ∷ (_, _)
+forkTypeChecksNoSignature₁ = fork_ (id ∷ Char → Char) 'c'
+
+forkTypeChecksNoSignature₂ ∷ (_, _)
+forkTypeChecksNoSignature₂ = fork_ id id 'c'
 
 class TupleToList α β where tupleToList ∷ α → [β]
 instance TupleToList ( ) β where tupleToList ( ) = [ ]
