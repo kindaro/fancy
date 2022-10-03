@@ -3,11 +3,6 @@ module Prelude.Fancy.Curry where
 import Data.Kind
 import Prelude.Fancy.Arithmetic
 
-type ToList ∷ ★ → [★]
-type family ToList tuple = result | result → tuple where
-  ToList (thingie × stuff) = thingie : ToList stuff
-  ToList () = '[]
-
 type family Tuple (stuff ∷ [★]) = tuple | tuple → stuff where
   Tuple '[] = ()
   Tuple (thingie : stuff) = thingie × Tuple stuff

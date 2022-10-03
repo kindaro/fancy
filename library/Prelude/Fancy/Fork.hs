@@ -4,6 +4,11 @@ import Data.Kind
 import Prelude.Fancy.Arithmetic
 import Prelude.Fancy.Curry
 
+type ToList ∷ ★ → [★]
+type family ToList tuple = result | result → tuple where
+  ToList (thingie × stuff) = thingie : ToList stuff
+  ToList () = '[]
+
 type family Fan source (targets ∷ [★]) = result | result → targets where
   Fan source '[] = ()
   Fan source (target : targets) = (source → target) × Fan source targets
