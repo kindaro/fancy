@@ -4,7 +4,7 @@ version: 0.1.0.0
 author: Ignat Insarov
 maintainer: kindaro@gmail.com
 synopsis: A predule for Fancy Haskell.
-tested-with: GHC == 8.10.7, GHC == 9.0.2, GHC == 9.2.4
+tested-with: GHC == 8.10.7, GHC == 9.0.2, GHC == 9.2.2
 
 common commons
   build-depends: base, base-unicode-symbols, containers
