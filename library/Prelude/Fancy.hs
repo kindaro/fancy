@@ -51,6 +51,11 @@ type family Tuple (stuff ∷ [★]) = tuple | tuple → stuff where
   Tuple '[ ] = ( )
   Tuple (thingie: stuff) = thingie × Tuple stuff
 
+type ToList ∷ ★ → [★]
+type family ToList tuple = result | result → tuple where
+  ToList (thingie × stuff) = thingie: ToList stuff
+  ToList ( ) = '[ ]
+
 type family Arrow (inputs ∷ [★]) output where
   Arrow '[ ] output = output
   Arrow (input: inputs) output = input → Arrow inputs output
@@ -125,6 +130,31 @@ uncurrifyTypeChecks₃ = uncurrify @_ @(Bool × Char) (undefined ∷ _ → _ →
 -- | Everything can be inferred from arity and inputs.
 uncurrifyTypeChecks₄ ∷ _
 uncurrifyTypeChecks₄ = uncurrify @'[Bool, Char] (undefined ∷ _ → _ → _ → _ × _)
+
+type family Fan source (targets ∷ [★]) = result | result → targets where
+  Fan source '[ ] = ( )
+  Fan source (target: targets) = (source → target) × Fan source targets
+
+type Fork ∷ ★ → [★] → Constraint
+
+class Fork source targets where fork ∷ Fan source targets → source → Tuple targets
+instance Fork source '[ ] where fork ( ) = \ _ → ( )
+instance Fork source targets ⇒ Fork source (target: targets)
+  where fork (arrow :× arrows) = \ source → arrow source :× fork arrows source
+
+type family ForkTargets source arrow where
+  ForkTargets source (((source → target) × arrows) → target × targets) = target: ForkTargets source arrows
+  ForkTargets source (( ) → ( )) = '[ ]
+
+fork_ ∷ ∀ targets arrows source arrow.
+  ( targets ~ ForkTargets source arrow
+  , arrows ~ Fan source targets
+  , arrows ~ Tuple (Inputs arrow (Tuple targets))
+  , Currify (ToList arrows) (Tuple targets) arrow
+  , Fork source targets
+  ) ⇒
+  source → arrow
+fork_ source = currify @(ToList arrows) \ arrows → fork arrows source
 
 -- forkTypeChecks₁ ∷ (Char, ( ))
 -- forkTypeChecks₁ = fork_ id 'c'
