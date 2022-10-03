@@ -146,7 +146,7 @@ type family ForkTargets source arrow where
   ForkTargets source (((source → target) × arrows) → target × targets) = target: ForkTargets source arrows
   ForkTargets source (( ) → ( )) = '[ ]
 
-fork_ ∷ ∀ targets arrows source arrow.
+fork_ ∷ ∀ source targets arrows arrow.
   ( targets ~ ForkTargets source arrow
   , arrows ~ Fan source targets
   , arrows ~ Tuple (Inputs arrow (Tuple targets))
@@ -156,17 +156,27 @@ fork_ ∷ ∀ targets arrows source arrow.
   source → arrow
 fork_ source = currify @(ToList arrows) \ arrows → fork arrows source
 
--- forkTypeChecks₁ ∷ (Char, ( ))
--- forkTypeChecks₁ = fork_ id 'c'
+type family there ▹ this where
+  '[ ] ▹ this = '[this]
+  (that: there) ▹ this = (that: there ▹ this)
 
--- forkTypeChecks₂ ∷ (Char, (Char, ( )))
--- forkTypeChecks₂ = fork_ id id 'c'
+type family Fork₂Targets arrow where
+  Fork₂Targets ((source → target) → arrow) = target: Fork₂Targets arrow
+  Fork₂Targets (source → target) = '[ ]
 
--- forkTypeChecksNoSignature₁ ∷ _
--- forkTypeChecksNoSignature₁ = fork_ (id ∷ Char → Char) 'c'
+type family Fork₂Source arrow where
+  Fork₂Source ((source → target) → arrow) = Fork₂Source arrow
+  Fork₂Source (source → target) = source
 
--- forkTypeChecksNoSignature₂ ∷ _
--- forkTypeChecksNoSignature₂ = fork_ id id 'c'
+fork₂ ∷ ∀ source targets arrows arrow.
+  ( targets ~ Fork₂Targets arrow
+  , source ~ Fork₂Source arrow
+  , arrows ~ Fan source targets
+  , arrows ~ Tuple (Inputs arrow (source → Tuple targets))
+  , Currify (ToList arrows) (source → Tuple targets) arrow
+  , Fork source targets
+  ) ⇒ arrow
+fork₂ = currify @(ToList arrows) fork
 
 class TupleToList α β where tupleToList ∷ α → [β]
 instance TupleToList ( ) β where tupleToList ( ) = [ ]
