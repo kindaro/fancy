@@ -1,24 +1,24 @@
 module Prelude.Fancy.Curry where
 
-import Prelude.Fancy.Arithmetic
 import Data.Kind
+import Prelude.Fancy.Arithmetic
 
 type ToList ∷ ★ → [★]
 type family ToList tuple = result | result → tuple where
-  ToList (thingie × stuff) = thingie: ToList stuff
-  ToList ( ) = '[ ]
+  ToList (thingie × stuff) = thingie : ToList stuff
+  ToList () = '[]
 
 type family Tuple (stuff ∷ [★]) = tuple | tuple → stuff where
-  Tuple '[ ] = ( )
-  Tuple (thingie: stuff) = thingie × Tuple stuff
+  Tuple '[] = ()
+  Tuple (thingie : stuff) = thingie × Tuple stuff
 
 class TupleToList α β where tupleToList ∷ α → [β]
-instance TupleToList ( ) β where tupleToList ( ) = [ ]
-instance (TupleToList γ α) ⇒ TupleToList (α, γ) α where tupleToList (x, xs) = x: tupleToList xs
+instance TupleToList () β where tupleToList () = []
+instance (TupleToList γ α) ⇒ TupleToList (α, γ) α where tupleToList (x, xs) = x : tupleToList xs
 
 type family Arrow (inputs ∷ [★]) output where
-  Arrow '[ ] output = output
-  Arrow (input: inputs) output = input → Arrow inputs output
+  Arrow '[] output = output
+  Arrow (input : inputs) output = input → Arrow inputs output
 
 type family Inputs arrow output where
   Inputs output output = '[]

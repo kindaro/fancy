@@ -10,11 +10,11 @@ import Prelude.Fancy.Curry
 
 -- | Everything can be inferred if arity is zero.
 currifyTypeChecks₁ ∷ _
-currifyTypeChecks₁ = currify @'[ ]
+currifyTypeChecks₁ = currify @'[]
 
 -- | Everything can be inferred from the length of the tuple and the output.
 currifyTypeChecks₂ ∷ _
-currifyTypeChecks₂ = currify @_ @Bool (undefined ∷ _ × _ × _ × ( ) → _)
+currifyTypeChecks₂ = currify @_ @Bool (undefined ∷ _ × _ × _ × () → _)
 
 -- | Everything can be inferred from arity and output.
 currifyTypeChecks₃ ∷ _ → _ → _ × _
@@ -28,10 +28,10 @@ currifyTypeChecks₄ = currify @'[Bool, Char] undefined
 
 -- | Everything can be inferred if arity is zero.
 uncurrifyTypeChecks₁ ∷ _
-uncurrifyTypeChecks₁ = uncurrify @'[ ]
+uncurrifyTypeChecks₁ = uncurrify @'[]
 
 -- | Everything can be inferred from the length of the tuple and the output.
-uncurrifyTypeChecks₂ ∷ _ × _ × _ × ( ) → _
+uncurrifyTypeChecks₂ ∷ _ × _ × _ × () → _
 uncurrifyTypeChecks₂ = uncurrify @_ @Bool undefined
 
 -- | Everything can be inferred from arity and output.
