@@ -87,7 +87,7 @@ instance Currify '[] output output where
 
 instance
   ( Currify inputs output arrow
-  , input : inputs ~ Inputs (input → arrow) output
+  , (input : inputs) ~ Inputs (input → arrow) output
   , output ~ Output (input → arrow) (input : inputs)
   ) ⇒
   Currify (input : inputs) output (input → arrow)
