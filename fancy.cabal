@@ -38,4 +38,5 @@ common commons
 library
   import: commons
   hs-source-dirs: library
-  exposed-modules: Prelude.Fancy
+  exposed-modules: Prelude.Fancy Prelude.Fancy.Arithmetic Prelude.Fancy.Assorti Prelude.Fancy.Curry Prelude.Fancy.Fork
+  other-modules: Prelude.Fancy.Curry.Checks
