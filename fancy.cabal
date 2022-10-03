@@ -3,37 +3,36 @@ name: fancy
 version: 0.1.0.0
 author: Ignat Insarov
 maintainer: kindaro@gmail.com
-tested-with: GHC == 8.10.7, GHC == 9.0.1, GHC == 9.2.1
+synopsis: A predule for Fancy Haskell.
+tested-with: GHC == 8.10.7, GHC == 9.0.2, GHC == 9.2.4
 
 common commons
-  build-depends:
-    , base
-    , base-unicode-symbols
-    , containers
+  build-depends: base, base-unicode-symbols, containers
   default-language: Haskell2010
   default-extensions:
     ApplicativeDo
     BlockArguments
+    DataKinds
     FlexibleContexts
     FlexibleInstances
+    FunctionalDependencies
     ImportQualifiedPost
     InstanceSigs
-    OverloadedStrings
-    StandaloneDeriving
-    TypeApplications
-    TypeOperators
-    UnicodeSyntax
     KindSignatures
-    DataKinds
-    TypeFamilies
-    TypeFamilyDependencies
     MultiParamTypeClasses
-    UndecidableInstances
-    FunctionalDependencies
-    StandaloneKindSignatures
+    OverloadedStrings
+    PatternSynonyms
     PolyKinds
     ScopedTypeVariables
-    PatternSynonyms
+    StandaloneDeriving
+    StandaloneKindSignatures
+    TypeApplications
+    TypeFamilies
+    TypeFamilyDependencies
+    TypeOperators
+    UndecidableInstances
+    UnicodeSyntax
+
   ghc-options: -Wall -Wextra -Werror -Wno-unticked-promoted-constructors -Wno-star-is-type
 
 library
