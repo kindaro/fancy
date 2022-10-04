@@ -7,7 +7,7 @@ synopsis: A predule for Fancy Haskell.
 tested-with: GHC == 8.10.7, GHC == 9.0.2, GHC == 9.2.2
 
 common commons
-  build-depends: base, base-unicode-symbols, containers, bytestring, text ^>= 2
+  build-depends: base, base-unicode-symbols, containers, bytestring, text ^>= 2, witherable
   default-language: Haskell2010
   default-extensions:
     ApplicativeDo

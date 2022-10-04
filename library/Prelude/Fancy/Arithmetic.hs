@@ -2,6 +2,9 @@ module Prelude.Fancy.Arithmetic where
 
 import Prelude.Unicode
 
+import Witherable qualified
+import Witherable (Filterable)
+
 type left × right = (left, right)
 infixr 7 ×
 
@@ -37,3 +40,6 @@ instance Commutative Either where
 distribute ∷ Bool × α → α + α
 distribute (False, value) = Left value
 distribute (True, value) = Right value
+
+partitionEithers ∷ Filterable filterable ⇒ filterable (left + right) → filterable left × filterable right
+partitionEithers = Witherable.mapMaybe (either Just (const Nothing)) ▵ Witherable.mapMaybe (either (const Nothing) Just)

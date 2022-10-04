@@ -14,6 +14,7 @@ import Data.Text.Encoding.Error qualified as Text
 import Data.Text.Lazy qualified as Texts
 import Data.Text.Lazy.Encoding qualified as Texts
 import Text.Read qualified as Base
+import Control.Applicative
 
 bind ∷ Monad monad ⇒ (input → monad output) → monad input → monad output
 bind = (=<<)
@@ -35,3 +36,9 @@ read = Base.readMaybe ∘ Text.unpack
 class Utf8 bytes string | bytes → string, string → bytes where utf8 ∷ bytes → string
 instance Utf8 ByteArray Text where utf8 = Text.decodeUtf8Lenient
 instance Utf8 ByteStream Texts.Text where utf8 = Texts.decodeUtf8With Text.lenientDecode
+
+memptify ∷ Monoid monoid ⇒ Bool → monoid → monoid
+memptify check thing = if check then thing else mempty
+
+guarded ∷ Alternative monad ⇒ Bool → α → monad α
+guarded check thing = if check then pure thing else empty
