@@ -4,6 +4,7 @@ import Prelude.Unicode
 import Prelude hiding (read, show)
 import Prelude qualified
 
+import Control.Applicative
 import Data.ByteString qualified as ByteArray
 import Data.ByteString.Lazy qualified as ByteStream
 import Data.Map.Lazy (Map)
@@ -14,7 +15,6 @@ import Data.Text.Encoding.Error qualified as Text
 import Data.Text.Lazy qualified as Texts
 import Data.Text.Lazy.Encoding qualified as Texts
 import Text.Read qualified as Base
-import Control.Applicative
 
 bind ∷ Monad monad ⇒ (input → monad output) → monad input → monad output
 bind = (=<<)
@@ -42,3 +42,6 @@ memptify check thing = if check then thing else mempty
 
 guarded ∷ Alternative monad ⇒ Bool → α → monad α
 guarded check thing = if check then pure thing else empty
+
+constant ∷ α → β → α
+constant = const

@@ -7,7 +7,14 @@ synopsis: A predule for Fancy Haskell.
 tested-with: GHC == 8.10.7, GHC == 9.0.2, GHC == 9.2.2
 
 common commons
-  build-depends: base, base-unicode-symbols, containers, bytestring, text ^>= 2, witherable
+  build-depends:
+    , base
+    , base-unicode-symbols
+    , bytestring
+    , containers
+    , text ^>= 2
+    , witherable
+
   default-language: Haskell2010
   default-extensions:
     ApplicativeDo
@@ -16,6 +23,7 @@ common commons
     FlexibleContexts
     FlexibleInstances
     FunctionalDependencies
+    GADTs
     ImportQualifiedPost
     InstanceSigs
     KindSignatures
@@ -23,6 +31,7 @@ common commons
     OverloadedStrings
     PatternSynonyms
     PolyKinds
+    RankNTypes
     ScopedTypeVariables
     StandaloneDeriving
     StandaloneKindSignatures
@@ -38,5 +47,23 @@ common commons
 library
   import: commons
   hs-source-dirs: library
-  exposed-modules: Prelude.Fancy Prelude.Fancy.Arithmetic Prelude.Fancy.Assorti Prelude.Fancy.Curry Prelude.Fancy.Fork
-  other-modules: Prelude.Fancy.Curry.Checks
+  exposed-modules:
+    Prelude.Fancy
+    Prelude.Fancy.Arithmetic
+    Prelude.Fancy.Assorti
+    Prelude.Fancy.Curry
+    Prelude.Fancy.Fork
+    Prelude.Fancy.Polymorphic
+    Prelude.Fancy.Polymorphic.Bloom
+    Prelude.Fancy.Polymorphic.Burst
+    Prelude.Fancy.Polymorphic.Polymorph
+    Prelude.Fancy.Polymorphic.Shrivel
+    Prelude.Fancy.Polymorphic.Warp
+
+  other-modules:
+    Prelude.Fancy.Curry.Checks
+    Prelude.Fancy.Polymorphic.Bloom.Checks
+    Prelude.Fancy.Polymorphic.Burst.Checks
+    Prelude.Fancy.Polymorphic.Polymorph.Checks
+    Prelude.Fancy.Polymorphic.Shrivel.Checks
+    Prelude.Fancy.Polymorphic.Warp.Checks
