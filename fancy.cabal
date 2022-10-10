@@ -51,6 +51,7 @@ library
     Prelude.Fancy
     Prelude.Fancy.Arithmetic
     Prelude.Fancy.Assorti
+    Prelude.Fancy.Converge
     Prelude.Fancy.Curry
     Prelude.Fancy.Fork
     Prelude.Fancy.Polymorphic
