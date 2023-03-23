@@ -44,7 +44,7 @@ instance
   ( Warp (Warping output) inputs outputs
   , Warping output ~ Arrow (value × inputs) (output value × outputs)
   , (value × inputs) ~ Input (Warping output) (output value × outputs)
-  ) ⇒
-  Warp (Warping output) (value × inputs) (output value × outputs)
+  )
+  ⇒ Warp (Warping output) (value × inputs) (output value × outputs)
   where
   warp (Warping function) (value :× values) = function value :× warp (Warping function) values

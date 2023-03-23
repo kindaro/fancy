@@ -5,9 +5,9 @@ import Prelude hiding (read, show)
 import Prelude qualified
 
 import Control.Applicative
+import Control.Monad.Writer
 import Data.ByteString qualified as ByteArray
 import Data.ByteString.Lazy qualified as ByteStream
-import Data.Map.Lazy (Map)
 import Data.Text (Text)
 import Data.Text qualified as Text
 import Data.Text.Encoding qualified as Text
@@ -21,8 +21,6 @@ bind = (=<<)
 
 for ∷ Functor functor ⇒ functor α → (α → β) → functor β
 for = flip fmap
-
-type key ⇸ value = Map key value
 
 type ByteArray = ByteArray.ByteString
 type ByteStream = ByteStream.ByteString
@@ -45,3 +43,16 @@ guarded check thing = if check then pure thing else empty
 
 constant ∷ α → β → α
 constant = const
+
+writ ∷ ([α] → β) → Writer [α] () → β
+writ = (∘ (snd ∘ runWriter))
+
+say ∷ α → Writer [α] ()
+say = tell ∘ pure
+
+picky ∷ [α] → Maybe α
+picky [x] = Just x
+picky _ = Nothing
+
+reckon ∷ (Enum α, Bounded α) ⇒ [α]
+reckon = [minBound .. maxBound]

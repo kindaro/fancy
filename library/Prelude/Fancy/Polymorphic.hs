@@ -1,14 +1,14 @@
-module Prelude.Fancy.Polymorphic (
-  module Prelude.Fancy.Arithmetic,
-  module Prelude.Fancy.Polymorphic.Polymorph,
-  module Prelude.Fancy.Polymorphic.Bloom,
-  module Prelude.Fancy.Polymorphic.Shrivel,
-  module Prelude.Fancy.Polymorphic.Warp,
-  module Prelude.Fancy.Polymorphic.Burst,
-  Weld (..),
-  Bristle (..),
-  TransposeTuple (..),
-) where
+module Prelude.Fancy.Polymorphic
+  ( module Prelude.Fancy.Arithmetic
+  , module Prelude.Fancy.Polymorphic.Polymorph
+  , module Prelude.Fancy.Polymorphic.Bloom
+  , module Prelude.Fancy.Polymorphic.Shrivel
+  , module Prelude.Fancy.Polymorphic.Warp
+  , module Prelude.Fancy.Polymorphic.Burst
+  , Weld (..)
+  , Bristle (..)
+  , TransposeTuple (..)
+  ) where
 
 import Prelude.Unicode
 
@@ -27,8 +27,8 @@ class Weld sundered welded | sundered → welded, welded → sundered where weld
 instance Weld () () where weld _ = ()
 instance
   ( Weld sundereds weldeds
-  ) ⇒
-  Weld (functor (gunctor value) × sundereds) ((functor ∘ gunctor) value × weldeds)
+  )
+  ⇒ Weld (functor (gunctor value) × sundereds) ((functor ∘ gunctor) value × weldeds)
   where
   weld (sundered :× sundereds) = W sundered :× weld sundereds
 
@@ -58,7 +58,7 @@ class
   transposeTuple ∷ outer tuple → transposed
 instance TransposeTuple functor () () where transposeTuple _ = ()
 instance
-  (TransposeTuple functor transposable transposed, Functor functor) ⇒
-  TransposeTuple functor (value, transposable) (functor value, transposed)
+  (TransposeTuple functor transposable transposed, Functor functor)
+  ⇒ TransposeTuple functor (value, transposable) (functor value, transposed)
   where
   transposeTuple functor = (fmap fst functor, (transposeTuple ∘ fmap snd) functor)

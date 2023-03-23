@@ -42,7 +42,7 @@ instance
   ( Shrivel (Shrivelling input output) inputs outputs
   , (output × outputs) ~ Output (Shrivelling input output) (input value × inputs)
   , Shrivelling input output ~ Arrow (input value × inputs) (output × outputs)
-  ) ⇒
-  Shrivel (Shrivelling input output) (input value × inputs) (output × outputs)
+  )
+  ⇒ Shrivel (Shrivelling input output) (input value × inputs) (output × outputs)
   where
   shrivel (Shrivelling function) (value :× values) = function value :× shrivel (Shrivelling function) values

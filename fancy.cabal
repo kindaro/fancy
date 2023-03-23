@@ -4,7 +4,7 @@ version: 0.1.0.0
 author: Ignat Insarov
 maintainer: kindaro@gmail.com
 synopsis: A predule for Fancy Haskell.
-tested-with: GHC == 8.10.7, GHC == 9.0.2, GHC == 9.2.2
+tested-with: GHC == 8.10.7, GHC == 9.0.2, GHC == 9.2.2, GHC == 9.4.4
 
 common commons
   build-depends:
@@ -12,6 +12,10 @@ common commons
     , base-unicode-symbols
     , bytestring
     , containers
+    , mtl
+    , pointed
+    , tasty
+    , tasty-quickcheck
     , text ^>= 2
     , witherable
 
@@ -20,10 +24,13 @@ common commons
     ApplicativeDo
     BlockArguments
     DataKinds
+    DeriveGeneric
+    DerivingStrategies
     FlexibleContexts
     FlexibleInstances
     FunctionalDependencies
     GADTs
+    GeneralizedNewtypeDeriving
     ImportQualifiedPost
     InstanceSigs
     KindSignatures
@@ -35,12 +42,14 @@ common commons
     ScopedTypeVariables
     StandaloneDeriving
     StandaloneKindSignatures
+    TupleSections
     TypeApplications
     TypeFamilies
     TypeFamilyDependencies
     TypeOperators
     UndecidableInstances
     UnicodeSyntax
+    ViewPatterns
 
   ghc-options: -Wall -Wextra -Werror -Wno-unticked-promoted-constructors -Wno-star-is-type
 
@@ -60,6 +69,7 @@ library
     Prelude.Fancy.Polymorphic.Polymorph
     Prelude.Fancy.Polymorphic.Shrivel
     Prelude.Fancy.Polymorphic.Warp
+    Prelude.Fancy.QuickCheck
 
   other-modules:
     Prelude.Fancy.Curry.Checks
@@ -68,3 +78,12 @@ library
     Prelude.Fancy.Polymorphic.Polymorph.Checks
     Prelude.Fancy.Polymorphic.Shrivel.Checks
     Prelude.Fancy.Polymorphic.Warp.Checks
+
+  ghc-options: -Wunused-packages
+
+test-suite checks
+  import: commons
+  type: exitcode-stdio-1.0
+  hs-source-dirs: test-suites/checks
+  main-is: Main.hs
+  build-depends: fancy, tasty

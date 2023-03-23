@@ -43,7 +43,7 @@ instance
   ( Bloom (Blooming input output) inputs outputs
   , (input × inputs) ~ Input (Blooming input output) (output value × outputs)
   , Blooming input output ~ Arrow (input × inputs) (output value × outputs)
-  ) ⇒
-  Bloom (Blooming input output) (input × inputs) (output value × outputs)
+  )
+  ⇒ Bloom (Blooming input output) (input × inputs) (output value × outputs)
   where
   bloom (Blooming function) (value :× values) = function value :× bloom (Blooming function) values

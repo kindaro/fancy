@@ -22,14 +22,14 @@ type family ForkTargets arrow where
   ForkTargets ((source → target) → arrow) = target : ForkTargets arrow
   ForkTargets (source → target) = '[]
 
-fork ∷
-  ∀ source targets arrows arrow.
-  ( targets ~ ForkTargets arrow
-  , source ~ ForkSource arrow
-  , arrows ~ Fan source targets
-  , arrows ~ Tuple (Inputs arrow (source → Tuple targets))
-  , Currify (ToList arrows) (source → Tuple targets) arrow
-  , Fork source targets
-  ) ⇒
-  arrow
+fork
+  ∷ ∀ source targets arrows arrow
+   . ( targets ~ ForkTargets arrow
+     , source ~ ForkSource arrow
+     , arrows ~ Fan source targets
+     , arrows ~ Tuple (Inputs arrow (source → Tuple targets))
+     , Currify (ToList arrows) (source → Tuple targets) arrow
+     , Fork source targets
+     )
+  ⇒ arrow
 fork = currify @(ToList arrows) fork_

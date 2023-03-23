@@ -36,8 +36,8 @@ instance
   ( Currify inputs output arrow
   , (input : inputs) ~ Inputs (input → arrow) output
   , output ~ Output (input → arrow) (input : inputs)
-  ) ⇒
-  Currify (input : inputs) output (input → arrow)
+  )
+  ⇒ Currify (input : inputs) output (input → arrow)
   where
   currify function = \input → currify \inputs → function (input :× inputs)
   uncurrify arrow = \(input :× inputs) → uncurrify (arrow input) inputs

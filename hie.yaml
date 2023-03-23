@@ -2,3 +2,6 @@ cradle:
   cabal:
     - path: "library"
       component: "lib:fancy"
+
+    - path: "test-suites/checks"
+      component: "fancy:test:checks"

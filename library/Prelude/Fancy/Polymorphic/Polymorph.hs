@@ -50,7 +50,7 @@ instance {-# OVERLAPPING #-} Polymorph (Polymorphic input output) (input value �
 instance
   ( Polymorph (Polymorphic input output) inputs outputs
   , Polymorphic input output ~ Arrow (input value × inputs) (output value × outputs)
-  ) ⇒
-  Polymorph (Polymorphic input output) (input value × inputs) (output value × outputs)
+  )
+  ⇒ Polymorph (Polymorphic input output) (input value × inputs) (output value × outputs)
   where
   polymorph (Polymorphic function) (value :× values) = function value :× polymorph (Polymorphic function) values

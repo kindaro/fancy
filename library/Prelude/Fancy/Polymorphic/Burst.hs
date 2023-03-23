@@ -43,7 +43,7 @@ instance {-# OVERLAPPING #-} Burst (Bursting input) (input value × ()) (value �
 instance
   ( Burst (Bursting input) inputs outputs
   , Bursting input ~ Arrow (input value × inputs) (value × outputs)
-  ) ⇒
-  Burst (Bursting input) (input value × inputs) (value × outputs)
+  )
+  ⇒ Burst (Bursting input) (input value × inputs) (value × outputs)
   where
   burst (Bursting function) (value :× values) = function value :× burst (Bursting function) values
