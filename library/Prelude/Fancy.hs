@@ -9,12 +9,14 @@ module Prelude.Fancy
   , module Prelude.Fancy.Polymorphic
   , module Prelude.Fancy.Converge
   , module Data.Text
+  , module Control.Monad
   ) where
 
 import Prelude.Unicode
 import Prelude hiding (read, show, (.))
 
 import Data.Monoid.Unicode
+import Control.Monad (join)
 
 import Prelude.Fancy.Arithmetic
 import Prelude.Fancy.Assorti

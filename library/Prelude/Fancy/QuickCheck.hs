@@ -31,7 +31,7 @@ infix 4 ↔
 (↔) = isExtensionallyEqual
 
 splitting
-  ∷ (ExtensionalEquality (sliver → sliver), ExtensionalEquality (whole → whole))
+  ∷ ExtensionalEquality (sliver → sliver)
   ⇒ Text
   → (whole → sliver)
   → (sliver → whole)
