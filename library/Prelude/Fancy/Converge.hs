@@ -1,6 +1,9 @@
 module Prelude.Fancy.Converge where
 
 import Prelude.Unicode
+import Prelude
+
+import Prelude.Fancy.Arithmetic
 
 converge ∷ Eq α ⇒ [α] → [α]
 converge = convergeBy (≡)
@@ -17,3 +20,6 @@ convergeBy equality (x : xs@(y : _))
 
 fixedPointBy ∷ (α → α → Bool) → (α → α) → α → α
 fixedPointBy equality function = last ∘ convergeBy equality ∘ iterate function
+
+differences ∷ [α] → [α × α]
+differences list = zip list (tail list)

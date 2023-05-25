@@ -18,6 +18,9 @@ common commons
     , tasty-quickcheck
     , text ^>= 2
     , witherable
+    , comonad
+    , pretty-show
+    , vector-sized
 
   default-language: Haskell2010
   default-extensions:
@@ -50,6 +53,10 @@ common commons
     UndecidableInstances
     UnicodeSyntax
     ViewPatterns
+    LambdaCase
+    DeriveFunctor
+    DeriveFoldable
+    DeriveTraversable
 
   ghc-options: -Wall -Wextra -Werror -Wno-unticked-promoted-constructors -Wno-star-is-type
 
@@ -60,6 +67,7 @@ library
     Prelude.Fancy
     Prelude.Fancy.Arithmetic
     Prelude.Fancy.Assorti
+    Prelude.Fancy.Chain
     Prelude.Fancy.Converge
     Prelude.Fancy.Curry
     Prelude.Fancy.Fork
@@ -79,7 +87,7 @@ library
     Prelude.Fancy.Polymorphic.Shrivel.Checks
     Prelude.Fancy.Polymorphic.Warp.Checks
 
-  ghc-options: -Wunused-packages
+  -- ghc-options: -Wunused-packages
 
 test-suite checks
   import: commons

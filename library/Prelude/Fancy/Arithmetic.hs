@@ -27,7 +27,7 @@ type (×) = (,)
 infixr 7 ×
 
 (▵) ∷ (input → left) → (input → right) → input → left × right
-function ▵ gunction = \input → (function input, gunction input)
+function ▵ gunction = \input → function input :× gunction input
 infixr 7 ▵
 
 type (+) = Either
@@ -67,7 +67,7 @@ pointedUnion (PointedSet (thisPoint :× thisSet)) (PointedSet (thatPoint :× tha
 
 -- Target-wards adjunct.
 power ∷ (Ord this, Ord that) ⇒ this — that → this ⇸ PointedSet that
-power = Map.fromListWith pointedUnion . (fmap ∘ fmap) point . Set.toList
+power = Map.fromListWith pointedUnion ∘ (fmap ∘ fmap) point ∘ Set.toList
 
 -- Source-wards adjunct.
 unpower ∷ (Ord this, Ord that) ⇒ (this ⇸ PointedSet that) → (this — that)

@@ -5,6 +5,9 @@ module Prelude.Fancy.QuickCheck
   , (↔)
   , splitting
   , isomorphosis
+  , checks
+  , checkPropertiesOf
+  , checkProperty
   ) where
 
 import Prelude.Fancy
@@ -13,6 +16,7 @@ import Test.Tasty
 import Test.Tasty.QuickCheck
 
 import Data.Text qualified as Text
+import Control.Monad.Writer (Writer)
 
 class ExtensionalEquality α where
   isExtensionallyEqual ∷ α → α → Property
@@ -42,3 +46,12 @@ isomorphosis ∷ (ExtensionalEquality (α → α), ExtensionalEquality (β → �
 isomorphosis name there back = writ (testGroup (unwords ["isomorphosis", Text.unpack name])) do
   say do splitting "α → β → α" there back
   say do splitting "β → α → β" back there
+
+checks ∷ Writer [TestTree] ( ) → IO ( )
+checks = defaultMain ∘ writ (testGroup "checks")
+
+checkPropertiesOf ∷ TestName → Writer [TestTree] ( ) → Writer [TestTree] ( )
+checkPropertiesOf = fmap say ∘ writ ∘ testGroup
+
+checkProperty ∷ Testable testable ⇒ TestName → testable → Writer [TestTree] ( )
+checkProperty = fmap say ∘ testProperty

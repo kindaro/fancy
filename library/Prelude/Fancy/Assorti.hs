@@ -1,8 +1,9 @@
+{-# LANGUAGE AllowAmbiguousTypes #-}
+
 module Prelude.Fancy.Assorti where
 
 import Prelude.Unicode
-import Prelude hiding (read, show)
-import Prelude qualified
+import Prelude hiding (read, show, print)
 
 import Control.Applicative
 import Control.Monad.Writer
@@ -15,6 +16,10 @@ import Data.Text.Encoding.Error qualified as Text
 import Data.Text.Lazy qualified as Texts
 import Data.Text.Lazy.Encoding qualified as Texts
 import Text.Read qualified as Base
+import Text.Show.Pretty qualified as Pretty
+import Numeric.Natural
+import GHC.TypeLits
+import Data.Proxy
 
 bind ∷ Monad monad ⇒ (input → monad output) → monad input → monad output
 bind = (=<<)
@@ -22,14 +27,37 @@ bind = (=<<)
 for ∷ Functor functor ⇒ functor α → (α → β) → functor β
 for = flip fmap
 
+type ℕ = Natural
+
+reify ∷ ∀ size number. (KnownNat size, Integral number) ⇒ number
+reify = fromIntegral (natVal (Proxy @size))
+
+predecessor ∷ ℕ → Maybe ℕ
+predecessor 0 = Nothing
+predecessor n = Just (n − 1)
+
+pattern Zero ∷ ℕ
+pattern Zero = 0
+
+pattern Successor :: ℕ → ℕ
+pattern Successor n ← (predecessor → Just n)
+  where Successor n = n + 1
+
+{-# complete Zero, Successor #-}
+
 type ByteArray = ByteArray.ByteString
 type ByteStream = ByteStream.ByteString
+type UnicodeArray = Text.Text
+type UnicodeStream = Texts.Text
 
 show ∷ Show showly ⇒ showly → Text
-show = Text.pack ∘ Prelude.show
+show = Text.pack ∘ Pretty.ppShow
 
 read ∷ Read readly ⇒ Text → Maybe readly
 read = Base.readMaybe ∘ Text.unpack
+
+print ∷ Show showly ⇒ showly → IO ( )
+print = Pretty.pPrint
 
 class Utf8 bytes string | bytes → string, string → bytes where utf8 ∷ bytes → string
 instance Utf8 ByteArray Text where utf8 = Text.decodeUtf8Lenient

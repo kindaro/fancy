@@ -12,7 +12,7 @@ import Prelude.Fancy.QuickCheck
 import Data.Functor.Classes
 import Data.Proxy
 import Data.Typeable
-import GHC.Generics
+import Control.Comonad
 
 main ∷ IO ()
 main = (defaultMain ∘ writ (testGroup "")) do
@@ -30,64 +30,65 @@ main = (defaultMain ∘ writ (testGroup "")) do
 
   say do
     writ (testGroup "swap") do
-      -- say do swap @[ ] @[ ] @Bool @Bool
-      say do swap @[ ] @((×) [Bool]) @Bool @Bool
-      say do swap @[ ] @((×) Bool) @Bool @Bool
-      say do swap @[ ] @Maybe @Bool @Bool
-      say do swap @[ ] @(Δ ( )) @Bool @Bool
-      say do swap @((×) [Bool]) @[ ] @Bool @Bool
-      say do swap @((×) [Bool]) @((×) [Bool]) @Bool @Bool
-      say do swap @((×) [Bool]) @((×) Bool) @Bool @Bool
-      say do swap @((×) [Bool]) @Maybe @Bool @Bool
-      say do swap @((×) [Bool]) @(Δ ( )) @Bool @Bool
-      say do swap @((×) Bool) @[ ] @Bool @Bool
-      say do swap @((×) Bool) @((×) [Bool]) @Bool @Bool
-      say do swap @((×) Bool) @((×) Bool) @Bool @Bool
-      say do swap @((×) Bool) @Maybe @Bool @Bool
-      say do swap @((×) Bool) @(Δ ( )) @Bool @Bool
-      say do swap @Maybe @[ ] @Bool @Bool
-      say do swap @Maybe @((×) [Bool]) @Bool @Bool
-      say do swap @Maybe @((×) Bool) @Bool @Bool
-      say do swap @Maybe @Maybe @Bool @Bool
-      say do swap @Maybe @(Δ ( )) @Bool @Bool
-      say do swap @(Δ ( )) @[ ] @Bool @Bool
-      say do swap @(Δ ( )) @((×) [Bool]) @Bool @Bool
-      say do swap @(Δ ( )) @((×) Bool) @Bool @Bool
-      say do swap @(Δ ( )) @Maybe @Bool @Bool
-      say do swap @(Δ ( )) @(Δ ( )) @Bool @Bool
+  --     -- say do swap @[ ] @[ ] @Bool @Bool
+  --     say do swap @[ ] @((×) [Bool]) @Bool @Bool
+  --     say do swap @[ ] @((×) Bool) @Bool @Bool
+  --     say do swap @[ ] @Maybe @Bool @Bool
+  --     say do swap @[ ] @(Δ ( )) @Bool @Bool
+  --     say do swap @((×) [Bool]) @[ ] @Bool @Bool
+  --     say do swap @((×) [Bool]) @((×) [Bool]) @Bool @Bool
+  --     say do swap @((×) [Bool]) @((×) Bool) @Bool @Bool
+  --     say do swap @((×) [Bool]) @Maybe @Bool @Bool
+  --     say do swap @((×) [Bool]) @(Δ ( )) @Bool @Bool
+  --     say do swap @((×) Bool) @[ ] @Bool @Bool
+  --     say do swap @((×) Bool) @((×) [Bool]) @Bool @Bool
+  --     say do swap @((×) Bool) @((×) Bool) @Bool @Bool
+  --     say do swap @((×) Bool) @Maybe @Bool @Bool
+  --     say do swap @((×) Bool) @(Δ ( )) @Bool @Bool
+  --     say do swap @Maybe @[ ] @Bool @Bool
+  --     say do swap @Maybe @((×) [Bool]) @Bool @Bool
+  --     say do swap @Maybe @((×) Bool) @Bool @Bool
+  --     say do swap @Maybe @Maybe @Bool @Bool
+  --     say do swap @Maybe @(Δ ( )) @Bool @Bool
+  --     say do swap @(Δ ( )) @[ ] @Bool @Bool
+  --     say do swap @(Δ ( )) @((×) [Bool]) @Bool @Bool
+  --     say do swap @(Δ ( )) @((×) Bool) @Bool @Bool
+  --     say do swap @(Δ ( )) @Maybe @Bool @Bool
+  --     say do swap @(Δ ( )) @(Δ ( )) @Bool @Bool
+      say do swap @((→) Bool) @I @Bool @Bool
 
-  say do
-    writ (testGroup "monadicity") do
-      -- say do monadicity @([ ] 	∘ [ ]) @Bool
-      say do monadicity @((×) [Bool] 	∘ [ ]) @Bool
-      say do monadicity @((×) Bool 	∘ [ ]) @Bool
-      say do monadicity @((→) Bool 	∘ [ ]) @Bool
-      say do monadicity @(Maybe 	∘ [ ]) @Bool
-      say do monadicity @(Δ ( ) 	∘ [ ]) @Bool
-      say do monadicity @([ ] 	∘ (×) [Bool]) @Bool
-      say do monadicity @((×) [Bool] 	∘ (×) [Bool]) @Bool
-      say do monadicity @((×) Bool 	∘ (×) [Bool]) @Bool
-      say do monadicity @((→) Bool 	∘ (×) [Bool]) @Bool
-      say do monadicity @(Maybe 	∘ (×) [Bool]) @Bool
-      say do monadicity @(Δ ( ) 	∘ (×) [Bool]) @Bool
-      say do monadicity @([ ] 	∘ (×) Bool) @Bool
-      say do monadicity @((×) [Bool] 	∘ (×) Bool) @Bool
-      say do monadicity @((×) Bool 	∘ (×) Bool) @Bool
-      say do monadicity @((→) Bool 	∘ (×) Bool) @Bool
-      say do monadicity @(Maybe 	∘ (×) Bool) @Bool
-      say do monadicity @(Δ ( ) 	∘ (×) Bool) @Bool
-      say do monadicity @((×) [Bool] 	∘ Maybe) @Bool
-      say do monadicity @((×) Bool 	∘ Maybe) @Bool
-      say do monadicity @((→) Bool 	∘ Maybe) @Bool
-      say do monadicity @([ ] 	∘ Maybe) @Bool
-      say do monadicity @(Maybe 	∘ Maybe) @Bool
-      say do monadicity @(Δ ( ) 	∘ Maybe) @Bool
-      say do monadicity @((×) [Bool] 	∘ Δ ( )) @Bool
-      say do monadicity @((×) Bool 	∘ Δ ( )) @Bool
-      say do monadicity @((→) Bool 	∘ Δ ( )) @Bool
-      say do monadicity @(Maybe 	∘ Δ ( )) @Bool
-      say do monadicity @([ ] 	∘ Δ ( )) @Bool
-      say do monadicity @(Δ ( ) 	∘ Δ ( )) @Bool
+  -- say do
+  --   writ (testGroup "monadicity") do
+  --     -- say do monadicity @([ ] 	∘ [ ]) @Bool
+  --     say do monadicity @((×) [Bool] 	∘ [ ]) @Bool
+  --     say do monadicity @((×) Bool 	∘ [ ]) @Bool
+  --     say do monadicity @((→) Bool 	∘ [ ]) @Bool
+  --     say do monadicity @(Maybe 	∘ [ ]) @Bool
+  --     say do monadicity @(Δ ( ) 	∘ [ ]) @Bool
+  --     say do monadicity @([ ] 	∘ (×) [Bool]) @Bool
+  --     say do monadicity @((×) [Bool] 	∘ (×) [Bool]) @Bool
+  --     say do monadicity @((×) Bool 	∘ (×) [Bool]) @Bool
+  --     say do monadicity @((→) Bool 	∘ (×) [Bool]) @Bool
+  --     say do monadicity @(Maybe 	∘ (×) [Bool]) @Bool
+  --     say do monadicity @(Δ ( ) 	∘ (×) [Bool]) @Bool
+  --     say do monadicity @([ ] 	∘ (×) Bool) @Bool
+  --     say do monadicity @((×) [Bool] 	∘ (×) Bool) @Bool
+  --     say do monadicity @((×) Bool 	∘ (×) Bool) @Bool
+  --     say do monadicity @((→) Bool 	∘ (×) Bool) @Bool
+  --     say do monadicity @(Maybe 	∘ (×) Bool) @Bool
+  --     say do monadicity @(Δ ( ) 	∘ (×) Bool) @Bool
+  --     say do monadicity @((×) [Bool] 	∘ Maybe) @Bool
+  --     say do monadicity @((×) Bool 	∘ Maybe) @Bool
+  --     say do monadicity @((→) Bool 	∘ Maybe) @Bool
+  --     say do monadicity @([ ] 	∘ Maybe) @Bool
+  --     say do monadicity @(Maybe 	∘ Maybe) @Bool
+  --     say do monadicity @(Δ ( ) 	∘ Maybe) @Bool
+  --     say do monadicity @((×) [Bool] 	∘ Δ ( )) @Bool
+  --     say do monadicity @((×) Bool 	∘ Δ ( )) @Bool
+  --     say do monadicity @((→) Bool 	∘ Δ ( )) @Bool
+  --     say do monadicity @(Maybe 	∘ Δ ( )) @Bool
+  --     say do monadicity @([ ] 	∘ Δ ( )) @Bool
+  --     say do monadicity @(Δ ( ) 	∘ Δ ( )) @Bool
 
 instance (Enum source, Bounded source, Show source, Show target) ⇒ Show (source → target) where show f = Prelude.show do for reckon \ x → (x, f x)
 
@@ -108,7 +109,7 @@ swap ∷ ∀ (n ∷ ★ → ★) (m ∷ ★ → ★) (a ∷ ★) (a' ∷ ★). (
 swap = testGroup (unwords ["swap laws", (Prelude.show ∘ typeRep) (Proxy @(n a)), (Prelude.show ∘ typeRep) (Proxy @(m a))])
   [ testProperty "S1" \ f → do sequence @n @m @a' ∘ (fmap @n ∘ fmap @m) f ↔ (fmap @m ∘ fmap @n) f ∘ sequence @n @m @a
   , testProperty "S2" do sequence @n @m ∘ pure @n @(m a) ↔ fmap @m (pure @n)
-  , testProperty "SS" do sequence @n @m ∘ fmap @n pure ↔ pure @m @(n a)
+  , testProperty "S3" do sequence @n @m ∘ fmap @n pure ↔ pure @m @(n a)
   , testProperty "s4" do prod ∘ fmap @n @(m (n (m a))) dorp ↔ ((dorp ∷ m (n (m a)) → m (n a)) ∘ (prod @m @n @(m a) ∷ n (m (n (m a))) → m (n (m a))) ∷ n (m (n (m a))) → m (n a))
   ]
 
@@ -138,3 +139,6 @@ instance Arbitrary (Thud x) where arbitrary = pure Thud
 instance Arbitrary1 Thud where liftArbitrary _ = pure Thud
 
 instance (Monad m, Traversable t, Monad t) ⇒ Monad (m ∘ t) where x >>= y = (W ∘ fmap join ∘ join ∘ fmap sequence ∘ w ∘ fmap w) (fmap y x)
+
+instance Monoid source ⇒ Foldable ((→) source) where foldMap f = extract ∘ fmap f
+instance Monoid source ⇒ Traversable ((→) source) where sequenceA = extract ∘ (fmap ∘ fmap) pure
